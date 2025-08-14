@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Luxury Birthday Card — Phong bì 3D mở</title>
+
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+<!-- html2canvas (for Save) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+
+<style>
+  :root{
+    --accent:#ff4d6d;
+    --accent-2:#f72585;
+    --gold-1: #d4af37;
+    --gold-2: #f7e1a7;
+    --bg-1: #fff8f9;
+    --bg-2: #fff0f4;
+    --card-w: 920px;
+    --card-h: 560px;
+    --glass: rgba(255,255,255,0.92);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial}
+  body{
+    display:flex;align-items:center;justify-content:center;
+    background:
+      radial-gradient(1000px 400px at 10% 20%, rgba(247,37,133,0.04), transparent),
+      linear-gradient(135deg,var(--bg-1),var(--bg-2));
+    padding:20px; overflow:hidden;
+  }
+
+  /* Stage */
+  .stage { position:relative; width:100%; max-width:1280px; height:92vh; display:grid; place-items:center; }
+
+  /* ---------- ENVELOPE (3D) ---------- */
+  .envelope-wrap { width:380px; height:260px; perspective:1600px; z-index:80; transition: transform .4s ease; }
+  .envelope { width:100%; height:100%; transform-style:preserve-3d; cursor:pointer; position:relative; display:block; }
+  .env-body {
+    position:absolute; inset:0; border-radius:12px;
+    background: linear-gradient(180deg,#fff,#fff0);
+    box-shadow:
+      0 30px 70px rgba(0,0,0,0.14),
+      0 10px 30px rgba(0,0,0,0.08) inset;
+    border: 1px solid rgba(0,0,0,0.05);
+    transform: translateZ(-8px) rotateX(0deg);
+  }
+  .env-flap {
+    position:absolute; left:0; top:0; width:100%; height:68%;
+    transform-origin: top center;
+    border-top-left-radius:12px; border-top-right-radius:12px;
+    background: linear-gradient(180deg,#fff,#fff0);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+    transition: transform .85s cubic-bezier(.2,.9,.25,1);
+  }
+  .env-seal {
+    position:absolute; left:50%; top:46%; transform:translate(-50%,-50%);
+    width:86px;height:86px;border-radius:50%;
+    background: radial-gradient(circle at 28% 25%, rgba(255,255,255,0.72), rgba(255,255,255,0.1)),
+               linear-gradient(135deg,var(--gold-1),var(--gold-2));
+    display:grid; place-items:center; color:#fff; font-family: 'Playfair Display', serif;
+    box-shadow: 0 10px 30px rgba(212,175,55,0.12), inset 0 -6px 12px rgba(0,0,0,0.06);
+    transform-origin:center; transition: transform .5s ease, opacity .4s ease;
+  }
+
+  /* small idle swing to feel "alive" */
+  @keyframes swing {
+    0% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-8px) rotate(2deg);} 100% { transform: translateY(0) rotate(-2deg); }
+  }
+  .envelope-wrap.idle { animation: swing 2200ms ease-in-out infinite; }
+
+  .envelope.open .env-flap { transform: rotateX(-140deg) translateY(-8px); }
+  .envelope.open .env-seal { transform: scale(.75) translateY(-28px); opacity:0; }
+
+  /* ---------- CARD (luxury) ---------- */
+  .card {
+    position:absolute; width:min(var(--card-w),94vw); height:min(var(--card-h),86vh);
+    border-radius:20px; background: linear-gradient(180deg,var(--glass), rgba(255,255,255,0.96));
+    border:1px solid rgba(212,175,55,0.12);
+    box-shadow: 0 30px 100px rgba(20,12,20,0.12);
+    transform-origin:center; transform: translateY(60px) scale(.75); opacity:0;
+    transition: transform .7s cubic-bezier(.2,.9,.25,1), opacity .45s ease .1s;
+    z-index:70; overflow:hidden; display:flex; flex-direction:column;
+  }
+  .card.show { transform: translateY(0) scale(1); opacity:1; }
+
+  .card-inner { display:grid; grid-template-columns: 260px 1fr; gap:28px; padding:30px; align-items:start; height:100%; }
+  .card-left { display:flex; flex-direction:column; align-items:center; gap:12px; }
+  .avatar { width:240px; height:240px; border-radius:16px; overflow:hidden; background:#eee center/cover no-repeat; box-shadow: 0 18px 40px rgba(0,0,0,0.12); border: 2px solid rgba(255,255,255,0.6); }
+  .ribbon { padding:10px 16px; border-radius:12px; background: linear-gradient(90deg,var(--accent-2),var(--accent)); color:white; font-weight:700; box-shadow: 0 10px 30px rgba(247,37,133,0.12); }
+
+  .card-right { padding-right:12px; display:flex; flex-direction:column; }
+  .heading { font-family:'Playfair Display', serif; font-size: clamp(28px,4vw,46px); color:var(--accent-2); margin:0; display:flex; align-items:center; gap:12px; }
+  .sub { margin-top:6px; color: rgba(0,0,0,0.55); font-weight:500; }
+
+  /* Typing area: per-sentence with fade */
+  .typing-area { margin-top:18px; min-height:140px; background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(255,255,255,0.95)); border-radius:14px; padding:18px; border:1px solid rgba(212,175,55,0.06); font-size:16px; line-height:1.9; color:#222; box-shadow: inset 0 1px 0 rgba(255,255,255,0.6); }
+  .typing-line { margin: 0 0 10px; white-space:pre-wrap; opacity:0; transform: translateY(6px); transition: all .28s ease; }
+
+  .typing-line.visible { opacity:1; transform: translateY(0); }
+
+  /* actions */
+  .actions { margin-top:10px; display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+  .btn { padding:10px 16px; border-radius:999px; cursor:pointer; font-weight:700; border:1px solid rgba(0,0,0,0.06); background:linear-gradient(90deg,#fff,#fff); transition: all .18s ease; }
+  .btn.primary { background: linear-gradient(90deg,var(--accent-2),var(--accent)); color:#fff; box-shadow: 0 12px 30px rgba(247,37,133,0.12); }
+  .btn.ghost { background: transparent; border: 1px solid rgba(212,175,55,0.12); color: #333; }
+
+  /* hearts and confetti layers */
+  .hearts { position:fixed; inset:0; pointer-events:none; z-index:40; overflow:hidden; }
+  .hearts .heart { position:absolute; width:16px;height:16px; background:var(--accent); transform:rotate(45deg); opacity:0.85; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.12)); }
+  .hearts .heart::before, .hearts .heart::after { content:''; position:absolute; width:16px;height:16px; background:var(--accent); border-radius:50% }
+  .hearts .heart::before{ left:-8px } .hearts .heart::after{ top:-8px }
+
+  .confetti { position:fixed; inset:0; pointer-events:none; z-index:60; overflow:hidden; }
+
+  /* footer */
+  .footer { position:absolute; bottom:14px; left:0; right:0; text-align:center; font-size:13px; color:rgba(0,0,0,0.55); }
+
+  /* modal letter (glass) */
+  .modal-wrap { position:fixed; inset:0; display:none; place-items:center; z-index:120; background: linear-gradient(rgba(10,10,10,0.36), rgba(10,10,10,0.36)); }
+  .modal { background: linear-gradient(180deg, rgba(255,255,255,0.94), rgba(255,255,255,0.9)); border-radius:14px; padding:20px; max-width:800px; width:min(94vw,800px); box-shadow:0 30px 100px rgba(0,0,0,0.22); border:1px solid rgba(212,175,55,0.06); transform-origin:center; }
+
+  /* responsive */
+  @media (max-width:980px){
+    .card-inner { grid-template-columns: 160px 1fr; gap:16px; padding:18px; }
+    .avatar{width:160px;height:160px;border-radius:12px}
+    .envelope-wrap{ width:320px;height:220px }
+  }
+  @media (max-width:540px){
+    .envelope-wrap{ width:280px;height:190px }
+    .card { width: 96vw; height: 86vh; }
+    .card-inner { grid-template-columns: 1fr; }
+    .avatar{width:120px;height:120px}
+  }
+</style>
+</head>
+<body>
+
+<div class="stage" id="stage">
+
+  <!-- hearts & confetti -->
+  <div class="hearts" id="hearts" aria-hidden="true"></div>
+  <div class="confetti" id="confetti" aria-hidden="true"></div>
+
+  <!-- Envelope (initial view) -->
+  <div class="envelope-wrap idle" id="envelopeWrap" title="Click để mở phong bì">
+    <div class="envelope" id="envelope" role="button" tabindex="0" aria-label="Mở phong bì">
+      <div class="env-body"></div>
+      <div class="env-flap"></div>
+      <div class="env-seal" aria-hidden="true">❤</div>
+    </div>
+  </div>
+
+  <!-- Card (hidden until envelope opens) -->
+  <article class="card" id="card" aria-label="Thiệp sinh nhật" role="article">
+    <div class="card-inner" id="cardInner">
+      <div class="card-left">
+        <div class="avatar" id="avatar" style="background-image: url('image/hoa.jpg');"></div>
+        <div class="ribbon" id="ribbonText">Happy Birthday</div>
+      </div>
+
+      <div class="card-right">
+        <h1 class="heading" id="headingText">Gửi em —</h1>
+        <div class="sub" id="subText">Một lời chúc tinh tế cho người đặc biệt.</div>
+
+        <!-- Typing area: sentences will appear here -->
+        <div class="typing-area" id="typingArea" aria-live="polite" aria-atomic="true"></div>
+
+        <div class="actions">
+          <button class="btn primary" id="openLetterBtn">Mở thư tay ✨</button>
+          <button class="btn ghost" id="saveBtn">Lưu ảnh thiệp</button>
+          <button class="btn" id="toggleMusic">Phát nhạc ♪</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">Made with ❤️ by <strong style="font-family:'Playfair Display',serif">Anh yêu (Lê Hồng Hải)</strong> • <span id="today"></span></div>
+  </article>
+
+</div>
+
+<!-- Modal letter (glass) -->
+<div class="modal-wrap" id="modalWrap" aria-hidden="true">
+  <div class="modal" role="document" aria-label="Thư tay">
+    <button id="closeModal" style="float:right;border:none;background:none;font-size:22px;cursor:pointer" aria-label="Đóng">×</button>
+    <h3 style="color:var(--accent-2); font-family:'Playfair Display',serif; margin-top:4px;">Gửi em của anh,</h3>
+    <div style="line-height:1.8; font-size:16px; color:#222; margin-top:8px;">
+      <div id="modalTyping"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================
+   CONFIG — dễ chỉnh ở đây
+   ========================= */
+const CONFIG = {
+  avatarSrc: 'image/vaytrang.jpg',          // ảnh người nhận (thay đường dẫn)
+  ribbonText: 'Happy Birthday Thanh Hoa',
+  headingText: 'Gửi em — Thanh Hoa',
+  subText: 'Hôm nay, anh muốn nói lời biết ơn vì có em bên cạnh.',
+  // Dãy câu sẽ được typed từng câu 1
+  typingSentences: [
+    "Chúc mừng sinh nhật! Chúc em luôn mạnh khỏe, bình an và rạng rỡ.",
+    "Cảm ơn em vì những khoảnh khắc giản đơn nhưng quý giá mà em mang đến.",
+    "Tuổi mới sẽ mở ra những cơ hội và kỷ niệm đẹp — anh ở đây, để sẻ chia cùng em."
+  ],
+  letterParagraph: "Thêm một năm trôi qua, anh càng trân trọng sự hiện diện của em trong cuộc đời. Em là nguồn cảm hứng để anh cố gắng từng ngày. Chúc em tuổi mới sức khỏe, bình yên và những nụ cười tươi sáng. Anh luôn ở đây, bên em.",
+  typingSpeed: 28,      // ms / ký tự
+  pauseBetweenSentences: 700, // ms
+  heartsCountOnOpen: 22,
+  confettiCountOnOpen: 60
+};
+
+/* =========================
+   INITIAL DOM hookup
+   ========================= */
+document.getElementById('avatar').style.backgroundImage = `url('${CONFIG.avatarSrc}')`;
+document.getElementById('ribbonText').textContent = CONFIG.ribbonText;
+document.getElementById('headingText').textContent = CONFIG.headingText;
+document.getElementById('subText').textContent = CONFIG.subText;
+document.getElementById('today').textContent = new Date().toLocaleDateString('vi-VN', { dateStyle: 'long' });
+
+/* ELEMENTS */
+const envelope = document.getElementById('envelope');
+const envelopeWrap = document.getElementById('envelopeWrap');
+const card = document.getElementById('card');
+const heartsLayer = document.getElementById('hearts');
+const confettiLayer = document.getElementById('confetti');
+const typingArea = document.getElementById('typingArea');
+const openLetterBtn = document.getElementById('openLetterBtn');
+const modalWrap = document.getElementById('modalWrap');
+const closeModal = document.getElementById('closeModal');
+const modalTyping = document.getElementById('modalTyping');
+const saveBtn = document.getElementById('saveBtn');
+const toggleMusicBtn = document.getElementById('toggleMusic');
+
+/* STATE */
+let opened = false;
+
+/* =========================
+   OPEN SEQUENCE (envelope -> card)
+   ========================= */
+function openEnvelopeSequence(){
+  if(opened) return;
+  opened = true;
+  envelope.classList.add('open');
+  envelopeWrap.classList.remove('idle');
+
+  // appear card with smooth motion
+  setTimeout(()=> {
+    card.classList.add('show');
+
+    // animate envelope fade back
+    envelopeWrap.style.transition = 'opacity .6s ease, transform .6s ease';
+    envelopeWrap.style.opacity = '0';
+    envelopeWrap.style.transform = 'translateY(48px) scale(.92)';
+
+    // hearts + confetti
+    spawnHearts(CONFIG.heartsCountOnOpen);
+    launchConfettiBurst(CONFIG.confettiCountOnOpen);
+
+    // start typing sequence
+    startTypingSequence(CONFIG.typingSentences, typingArea, CONFIG.typingSpeed, CONFIG.pauseBetweenSentences);
+
+    // play soft music synthesized by WebAudio (user interaction triggers)
+    playAmbientMusic();
+
+  }, 640);
+}
+
+// allow opening by click or keyboard (Enter / Space)
+envelope.addEventListener('click', openEnvelopeSequence);
+envelope.addEventListener('keydown', e => { if(e.key === 'Enter' || e.key === ' ') openEnvelopeSequence(); });
+
+/* =========================
+   TYPING SEQUENCE (per sentence)
+   ========================= */
+async function startTypingSequence(sentences, container, speed=28, pauseBetween=600){
+  container.innerHTML = '';
+  for(let s of sentences){
+    const line = document.createElement('div');
+    line.className = 'typing-line';
+    container.appendChild(line);
+    await typeText(s, line, speed);
+    // mark visible (fade-in)
+    line.classList.add('visible');
+    await sleep(pauseBetween);
+  }
+  // small flourish after finish
+  spawnHearts(10);
+}
+
+/* Type text char-by-char with subtle key click using WebAudio */
+function typeText(text, el, speed=28){
+  return new Promise(resolve => {
+    let i = 0;
+
+    // prepare audio context for tiny clicks (if available)
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    let aCtx = null;
+    try { aCtx = new AudioCtx(); } catch(e) { aCtx = null; }
+
+    function clickSound() {
+      if(!aCtx) return;
+      const o = aCtx.createOscillator();
+      const g = aCtx.createGain();
+      o.type = 'square';
+      o.frequency.value = 700 + Math.random()*450;
+      g.gain.value = 0.004;
+      o.connect(g); g.connect(aCtx.destination);
+      o.start();
+      setTimeout(()=> o.stop(), 40 + Math.random()*40);
+    }
+
+    function step(){
+      if(i < text.length){
+        el.textContent += text.charAt(i);
+        if(Math.random() > 0.65) clickSound();
+        i++;
+        setTimeout(step, speed);
+      } else {
+        resolve();
+      }
+    }
+    step();
+  });
+}
+
+function sleep(ms){ return new Promise(res => setTimeout(res, ms)); }
+
+/* =========================
+   Hearts (floating) — nicer curved paths
+   ========================= */
+function spawnHearts(n=12){
+  const H = innerHeight;
+  for(let i=0;i<n;i++){
+    const h = document.createElement('div');
+    h.className = 'heart';
+    const size = 10 + Math.random()*20;
+    h.style.width = h.style.height = size + 'px';
+    const left = Math.random()*100;
+    h.style.left = `${left}vw`;
+    h.style.bottom = `${-40 - Math.random()*160}px`;
+    h.style.opacity = (0.6 + Math.random()*0.4);
+    // gradient color variation
+    h.style.background = Math.random()>.5 ? 'linear-gradient(180deg,#f72585,#ff4d6d)' : 'linear-gradient(180deg,#ff758f,#ff4d6d)';
+    heartsLayer.appendChild(h);
+
+    // animate along a gentle bezier-like curve using CSS transitions + transforms
+    const dur = 8 + Math.random()*6;
+    setTimeout(()=> {
+      h.style.transition = `transform ${dur}s cubic-bezier(.2,.9,.25,1), opacity ${dur}s linear`;
+      const dx = (Math.random()*120 - 60);
+      h.style.transform = `translate(${dx}px, -${H + 220}px) rotate(${30 - Math.random()*60}deg) scale(${1 + Math.random()*0.4})`;
+      h.style.opacity = '0';
+    }, 40 + Math.random()*400);
+
+    // cleanup
+    setTimeout(()=> h.remove(), (dur + 0.6)*1000);
+  }
+}
+
+/* =========================
+   Confetti burst
+   ========================= */
+function launchConfettiBurst(n=40){
+  const colors = ['#f72585','#ff4d6d','#ff9a9e','#ffd6e0','#fad0c4','#fbe8a6'];
+  for(let i=0;i<n;i++){
+    const c = document.createElement('div');
+    c.style.position = 'absolute';
+    c.style.width = (6 + Math.random()*12)+'px';
+    c.style.height = (8 + Math.random()*16)+'px';
+    c.style.left = (40 + Math.random()*20)+'vw';
+    c.style.top = '18vh';
+    c.style.background = colors[Math.floor(Math.random()*colors.length)];
+    c.style.opacity = 0.95;
+    c.style.borderRadius = (Math.random()>.6) ? '2px' : '50%';
+    confettiLayer.appendChild(c);
+    const dx = (Math.random()*480 - 240);
+    const dy = (Math.random()*420 + 180);
+    const rot = (Math.random()*720 - 360);
+    c.animate([
+      { transform: 'translate(0,0) rotate(0deg)', opacity:1 },
+      { transform: `translate(${dx}px, ${dy}px) rotate(${rot}deg)`, opacity:0.12 }
+    ], { duration: 1000 + Math.random()*1600, easing: 'cubic-bezier(.2,.9,.25,1)'});
+    setTimeout(()=> c.remove(), 2200 + Math.random()*1200);
+  }
+}
+
+/* =========================
+   Modal (letter) — typed when opened
+   ========================= */
+openLetterBtn.addEventListener('click', async ()=>{
+  modalWrap.style.display = 'grid';
+  modalWrap.setAttribute('aria-hidden','false');
+  modalTyping.textContent = '';
+  await typeText(CONFIG.letterParagraph, modalTyping, 20);
+});
+closeModal.addEventListener('click', ()=>{ modalWrap.style.display='none'; modalWrap.setAttribute('aria-hidden','true'); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape'){ modalWrap.style.display='none'; modalWrap.setAttribute('aria-hidden','true'); } });
+
+/* =========================
+   Save image using html2canvas
+   ========================= */
+saveBtn.addEventListener('click', async ()=>{
+  saveBtn.disabled = true; saveBtn.textContent = 'Đang tạo ảnh...';
+  try {
+    await sleep(80); // wait paint
+    const canvas = await html2canvas(card, { useCORS: true, scale: 2, backgroundColor: null });
+    const url = canvas.toDataURL('image/png');
+    const a = document.createElement('a');
+    a.href = url; a.download = 'thiep-sinh-nhat.png'; a.click();
+  } catch(err){
+    alert('Không thể tạo ảnh trên trình duyệt này. Hãy thử chụp màn hình.');
+  } finally {
+    saveBtn.disabled = false; saveBtn.textContent = 'Lưu ảnh thiệp';
+  }
+});
+
+/* =========================
+   Music: synth ambient piano-like pad using WebAudio
+   - no external MP3 needed (so it works offline)
+   - plays soft arpeggio/chords on loop when user opens envelope
+   ========================= */
+let musicPlaying = false;
+let audioState = { ctx: null, master: null, loopId: null };
+
+function playAmbientMusic(){
+  if(musicPlaying) return;
+  musicPlaying = true;
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  const ctx = new AudioCtx();
+  audioState.ctx = ctx;
+  const master = ctx.createGain(); master.gain.value = 0.14; master.connect(ctx.destination);
+  audioState.master = master;
+
+  // create gentle pad using multiple oscillators + reverb-ish via delay
+  const delay = ctx.createDelay(); delay.delayTime.value = 0.25;
+  const feedback = ctx.createGain(); feedback.gain.value = 0.28;
+  delay.connect(feedback); feedback.connect(delay);
+  delay.connect(master);
+
+  // reverb-ish using multiple delays
+  const convGain = ctx.createGain(); convGain.gain.value = 0.7;
+  convGain.connect(delay);
+
+  // chord progression notes (frequencies)
+  const baseFreq = 220; // A3-ish
+  const chordDegrees = [
+    [0,4,7],   // major triad
+    [9,12,16], // different inversion/extension
+    [7,11,14],
+    [5,9,12]
+  ];
+
+  // schedule gentle chord changes in loop
+  let timeOffset = ctx.currentTime + 0.1;
+  const loop = () => {
+    const now = ctx.currentTime;
+    let t = timeOffset;
+    for(let i=0;i<chordDegrees.length;i++){
+      const deg = chordDegrees[i];
+      // play each chord as 3 oscillators (soft)
+      deg.forEach((step, idx)=>{
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        const detune = (Math.random()*20 - 10);
+        o.type = 'sine';
+        o.frequency.value = baseFreq * Math.pow(2, step/12);
+        o.detune.value = detune;
+        g.gain.value = 0;
+        o.connect(g); g.connect(convGain);
+        const attack = 0.8 + Math.random()*0.4;
+        const sustain = 1.6 + Math.random()*0.8;
+        // envelope
+        g.gain.setValueAtTime(0, t);
+        g.gain.linearRampToValueAtTime(0.06/(idx+1), t + attack*0.3);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + attack + sustain);
+        o.start(t);
+        o.stop(t + attack + sustain + 0.2);
+      });
+      t += 1.3 + Math.random()*0.6;
+    }
+    timeOffset = t + 0.4;
+    // schedule next loop
+    audioState.loopId = setTimeout(loop, (timeOffset - now) * 1000);
+  };
+  // connect convGain to delay and master path
+  convGain.connect(delay);
+  convGain.connect(master);
+  // start loop
+  loop();
+
+  // allow manual stop by clicking toggleMusicBtn
+  toggleMusicBtn.textContent = 'Tạm dừng ♫';
+}
+
+/* Toggle music stop (just stop scheduling and close context) */
+toggleMusicBtn.addEventListener('click', ()=>{
+  if(!musicPlaying){
+    playAmbientMusic();
+  } else {
+    // stop
+    if(audioState.loopId) clearTimeout(audioState.loopId);
+    if(audioState.ctx){
+      try { audioState.ctx.close(); } catch(e){}
+      audioState = { ctx:null, master:null, loopId:null };
+    }
+    musicPlaying = false;
+    toggleMusicBtn.textContent = 'Phát nhạc ♪';
+  }
+});
+
+/* Pre-unlock audio on first user click for better mobile experience */
+function unlockAudio(){ try { const ctx = new (window.AudioContext || window.webkitAudioContext)(); const o = ctx.createOscillator(); const g = ctx.createGain(); o.connect(g); g.connect(ctx.destination); g.gain.value = 0; o.start(0); setTimeout(()=> o.stop(), 20); document.removeEventListener('click', unlockAudio); } catch(e){} }
+document.addEventListener('click', unlockAudio, { once: true });
+
+/* Accessibility visuals */
+envelope.addEventListener('mouseenter', ()=> envelopeWrap.style.transform = 'translateY(-6px) scale(1.02)');
+envelope.addEventListener('mouseleave', ()=> envelopeWrap.style.transform = '');
+envelope.addEventListener('focus', ()=> envelopeWrap.style.boxShadow = '0 8px 40px rgba(0,0,0,0.12)');
+envelope.addEventListener('blur', ()=> envelopeWrap.style.boxShadow = 'none');
+
+/* That's it — small helper to ensure progressive enhancement */
+</script>
+
+</body>
+</html>

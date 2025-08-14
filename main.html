@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Thiệp sinh nhật tặng Hoa</title>
+
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+
+<!-- html2canvas CDN used for "Save image" -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" defer></script>
+
+<style>
+  :root{
+    --accent:#ff4d6d; --accent-2:#f72585;
+    --bg1:#fff6f8; --bg2:#ffeef2;
+    --card-w:840px; --card-h:520px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%; margin:0; font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial}
+  body{
+    display:flex; align-items:center; justify-content:center;
+    background: radial-gradient(1200px 500px at 10% 10%, rgba(247,37,133,0.05), transparent),
+                linear-gradient(135deg,var(--bg1),var(--bg2));
+    overflow:hidden; padding:20px;
+  }
+
+  /* Stage container */
+  .stage { position:relative; width:100%; max-width:1200px; height:84vh; display:grid; place-items:center; }
+
+  /* Envelope */
+  .envelope-wrap { position:relative; width:360px; height:240px; perspective:1400px; z-index:60; transition:transform .6s ease; }
+  .envelope { width:100%; height:100%; transform-style:preserve-3d; cursor:pointer; display:block; position:relative; }
+  .env-body {
+    position:absolute; inset:0; border-radius:10px;
+    background: linear-gradient(180deg, #fff, #fff0);
+    box-shadow: 0 22px 60px rgba(18,10,20,0.12); border:1px solid rgba(0,0,0,0.04);
+  }
+  .env-flap {
+    position:absolute; left:0; top:0; width:100%; height:64%;
+    transform-origin: top center; border-radius:10px;
+    background: linear-gradient(180deg,#fff,#fff0);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08); transition: transform .9s cubic-bezier(.2,.9,.25,1);
+  }
+  .env-seal {
+    position:absolute; left:50%; top:46%; transform:translate(-50%,-50%); z-index:10;
+    width:72px;height:72px;border-radius:50%;
+    background: linear-gradient(135deg,var(--accent-2),var(--accent));
+    display:grid; place-items:center; color:#fff; font-family:'Playfair Display',serif;
+    box-shadow: 0 8px 20px rgba(247,37,133,0.18); transition: transform .5s ease, opacity .4s ease;
+  }
+  .envelope.idle { animation: sway 2200ms ease-in-out infinite; }
+  @keyframes sway { 0%{transform:translateY(0) rotate(-2deg)} 50%{transform:translateY(-6px) rotate(2deg)} 100%{transform:translateY(0) rotate(-2deg)} }
+  .envelope.open .env-flap { transform: rotateX(-135deg) translateY(-8px); }
+  .envelope.open .env-seal { transform: scale(.7) translateY(-28px); opacity:0; }
+
+  /* Card (hidden until opened) */
+  .card {
+    position:absolute; width:min(var(--card-w),94vw); height:min(var(--card-h),86vh);
+    border-radius:20px; background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.90));
+    border:1px solid rgba(255,255,255,0.6); box-shadow: 0 30px 90px rgba(12,8,18,0.12);
+    transform-origin:center; transform: translateY(36px) scale(.7); opacity:0; transition: all .6s cubic-bezier(.2,.9,.25,1);
+    z-index:50; overflow:hidden;
+  }
+  .card.show { transform: translateY(0) scale(1); opacity:1; }
+
+  .card-inner { display:grid; grid-template-columns: 240px 1fr; gap:22px; padding:26px; align-items:start; height:100%; }
+  .card-left { display:flex; flex-direction:column; gap:12px; align-items:center; }
+  .avatar { width:220px; height:220px; border-radius:14px; overflow:hidden; background:#eee center/cover no-repeat; box-shadow:0 12px 30px rgba(0,0,0,0.12); border:1px solid rgba(0,0,0,0.04); }
+  .ribbon { padding:8px 14px; border-radius:12px; margin-top:6px; background: linear-gradient(90deg,var(--accent-2),var(--accent)); color:#fff; font-weight:700; }
+
+  .card-right { padding-right:12px; display:flex; flex-direction:column; }
+  .heading { font-family:'Playfair Display', serif; font-size: clamp(28px,4vw,44px); color:var(--accent-2); margin:0; display:flex; align-items:center; gap:12px; }
+  .sub { margin-top:6px; color: rgba(0,0,0,0.6); font-weight:500; }
+
+  /* Typing (per-sentence) */
+  .typing-area { margin-top:18px; min-height:120px; background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,255,255,0.92)); border-radius:12px; padding:14px; border:1px solid rgba(245,37,133,0.06); font-size:16px; line-height:1.9; color:#222; }
+  .typing-line { margin:0 0 10px; white-space:pre-wrap; word-break:break-word; }
+
+  /* actions */
+  .actions { margin-top:8px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  .btn { padding:10px 16px; border-radius:999px; cursor:pointer; font-weight:700; border:1px solid rgba(0,0,0,0.06); background:linear-gradient(90deg,#fff,#fff); transition: all .18s ease; }
+  .btn.primary { background: linear-gradient(90deg,var(--accent-2),var(--accent)); color:#fff; box-shadow: 0 12px 30px rgba(247,37,133,0.12); }
+
+  /* hearts & confetti layers */
+  .hearts { position:fixed; inset:0; pointer-events:none; z-index:30; overflow:hidden; }
+  .hearts .heart { position:absolute; width:14px;height:14px; background:var(--accent); transform:rotate(45deg); opacity:0.8; filter:drop-shadow(0 6px 10px rgba(0,0,0,0.12)); }
+  .hearts .heart::before, .hearts .heart::after { content:''; position:absolute; width:14px;height:14px; background:var(--accent); border-radius:50% }
+  .hearts .heart::before{ left:-7px } .hearts .heart::after{ top:-7px }
+
+  .confetti { position:fixed; inset:0; pointer-events:none; z-index:40; overflow:hidden; }
+
+  /* footer */
+  .footer { position:absolute; bottom:12px; left:0; right:0; text-align:center; font-size:13px; color:rgba(0,0,0,0.55); }
+
+  /* modal letter */
+  .modal-wrap { position:fixed; inset:0; display:none; place-items:center; z-index:70; background:rgba(0,0,0,0.4); }
+  .modal { background:#fff; border-radius:12px; padding:20px; max-width:720px; width:min(94vw,720px); box-shadow:0 30px 80px rgba(0,0,0,0.18); }
+
+  /* responsive */
+  @media (max-width:860px){
+    .card-inner { grid-template-columns: 140px 1fr; gap:12px; padding:18px; }
+    .avatar{width:140px;height:140px}
+    .envelope-wrap{ width:300px; height:200px }
+  }
+</style>
+</head>
+<body>
+
+<div class="stage" id="stage">
+
+  <!-- hearts & confetti -->
+  <div class="hearts" id="hearts" aria-hidden="true"></div>
+  <div class="confetti" id="confetti"></div>
+
+  <!-- Envelope (initial view) -->
+  <div class="envelope-wrap idle" id="envelopeWrap" title="Click để mở phong bì">
+    <div class="envelope" id="envelope" role="button" tabindex="0" aria-label="Mở phong bì">
+      <div class="env-body"></div>
+      <div class="env-flap"></div>
+      <div class="env-seal">❤</div>
+    </div>
+  </div>
+
+  <!-- Card (hidden until envelope opens) -->
+  <article class="card" id="card" aria-label="Thiệp sinh nhật">
+    <div class="card-inner" id="cardInner">
+      <div class="card-left">
+        <div class="avatar" id="avatar" style="background-image:url('image/vaytrang.jpg');"></div>
+        <div class="ribbon" id="ribbonText">Happy Birthday Thanh Hoa</div>
+      </div>
+
+      <div class="card-right">
+        <h1 class="heading" id="headingText">Gửi em — Thanh Hoa</h1>
+        <div class="sub">Ngày này, anh muốn nói lời biết ơn vì có em bên cạnh.</div>
+
+        <!-- Typing area: we'll type sentences sequentially -->
+        <div class="typing-area" id="typingArea" aria-live="polite">
+          <!-- JS will append .typing-line elements -->
+        </div>
+
+        <div class="actions">
+          <button class="btn primary" id="openLetterBtn">Mở thư tay ✨</button>
+          <button class="btn" id="saveBtn">Lưu ảnh thiệp</button>
+          <button class="btn" id="toggleMusic">Phát nhạc ♪</button>
+          <a class="btn primary" style="text-decoration: none;" href="tree.html">My Love</a>
+
+          <audio id="bgm" src="./happy-birthday.mp3" preload="auto"></audio>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">Made with ❤️ by <strong style="font-family:'Playfair Display',serif">Lê Hồng Hải</strong> • <span id="today"></span></div>
+  </article>
+
+</div>
+
+<!-- Letter modal (typed with typewriter) -->
+<div class="modal-wrap" id="modalWrap" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal" role="document">
+    <button id="closeModal" style="float:right;border:none;background:none;font-size:20px;cursor:pointer">×</button>
+    <h3 style="color:var(--accent-2); font-family:'Playfair Display',serif; margin-top:4px;">Gửi em của anh,</h3>
+    <div style="line-height:1.8; font-size:16px; color:#222; margin-top:8px;">
+      <div id="modalTyping"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================
+   CONFIG — dễ chỉnh ở đây
+   ========================= */
+const CONFIG = {
+  avatarSrc: 'image/vaytrang.jpg',        // thay ảnh người nhận
+  ribbonText: 'Happy Birthday Thanh Hoa',
+  headingText: 'Gửi em — Thanh Hoa',
+  // các câu sẽ được typed từng câu một
+  typingSentences: [
+    "Chúc mừng sinh nhật! Chúc em luôn mạnh khỏe, bình an và trọn vẹn niềm vui.",
+    "Cảm ơn em vì đã ở bên, vì những khoảnh khắc giản đơn nhưng quý giá.",
+    "Tuổi mới sẽ mang đến thêm cơ hội, trải nghiệm và những nụ cười thật đẹp. Anh ở đây, đồng hành cùng em."
+  ],
+  // nội dung modal (thư tay), sẽ được type khi mở
+  letterParagraph: "Thêm một năm trôi qua, anh càng trân trọng sự hiện diện của em trong cuộc đời. Em là nguồn cảm hứng để anh ngày càng hoàn thiện. Chúc em tuổi mới sức khỏe, bình yên và nhiều niềm vui. Anh sẽ luôn ở đây, sát cánh cùng em.",
+  bgmSrc: './happy-birthday.mp3',    // đặt mp3 của bạn ở đây
+  typingSpeed: 28,                   // ms / ký tự
+  typingPauseBetweenSentences: 700   // ms pause giữa các câu
+};
+
+/* =========================
+   INIT — gán config vào DOM
+   ========================= */
+document.getElementById('avatar').style.backgroundImage = `url('${CONFIG.avatarSrc}')`;
+document.getElementById('ribbonText').textContent = CONFIG.ribbonText;
+document.getElementById('headingText').textContent = CONFIG.headingText;
+document.getElementById('bgm').src = CONFIG.bgmSrc;
+document.getElementById('today').textContent = new Date().toLocaleDateString('vi-VN', { dateStyle: 'long' });
+
+/* =========================
+   ELEMENTS
+   ========================= */
+const envelope = document.getElementById('envelope');
+const envelopeWrap = document.getElementById('envelopeWrap');
+const card = document.getElementById('card');
+const heartsLayer = document.getElementById('hearts');
+const confettiLayer = document.getElementById('confetti');
+const typingArea = document.getElementById('typingArea');
+const openLetterBtn = document.getElementById('openLetterBtn');
+const modalWrap = document.getElementById('modalWrap');
+const closeModal = document.getElementById('closeModal');
+const modalTyping = document.getElementById('modalTyping');
+const saveBtn = document.getElementById('saveBtn');
+const bgm = document.getElementById('bgm');
+const toggleMusic = document.getElementById('toggleMusic');
+
+/* =========================
+   ENVELOPE OPEN SEQUENCE
+   ========================= */
+let opened = false;
+function openEnvelopeSequence() {
+  if (opened) return;
+  opened = true;
+  envelope.classList.add('open');
+  envelopeWrap.classList.remove('idle');
+
+  // after flap opens: animate card coming out (pull + scale) with a smooth curve
+  setTimeout(() => {
+    card.classList.add('show');
+    // make envelope fade/shift back
+    envelopeWrap.style.transition = 'opacity .6s ease, transform .6s ease';
+    envelopeWrap.style.opacity = '0';
+    envelopeWrap.style.transform = 'translateY(36px) scale(.94)';
+
+    // spawn hearts and confetti
+    spawnHearts(20);
+    launchConfettiBurst(50);
+
+    // start typing sequence
+    startTypingSequence(CONFIG.typingSentences, typingArea, CONFIG.typingSpeed, CONFIG.typingPauseBetweenSentences);
+
+    // try to play music (user already clicked)
+    bgm.play().then(()=> toggleMusic.textContent = 'Tạm dừng ♫').catch(()=>{ /* ignore */ });
+
+  }, 700);
+}
+
+// allow click + keyboard to open
+envelope.addEventListener('click', openEnvelopeSequence);
+envelope.addEventListener('keydown', e => { if (e.key === ' ' || e.key === 'Enter') openEnvelopeSequence(); });
+
+/* =========================
+   TYPING SEQUENCE (per-sentence)
+   ========================= */
+async function startTypingSequence(sentences, container, speed=28, pauseBetween=600) {
+  container.innerHTML = ''; // clear
+  for (let s of sentences) {
+    const lineEl = document.createElement('div');
+    lineEl.className = 'typing-line';
+    container.appendChild(lineEl);
+    await typeText(s, lineEl, speed);
+    // small pause after sentence
+    await sleep(pauseBetween);
+  }
+  // after typing finished, lightly spawn a few more hearts
+  spawnHearts(8);
+}
+
+/* type a single string into element char-by-char */
+function typeText(text, el, speed=28) {
+  return new Promise(resolve => {
+    let i = 0;
+    // small "type click" sound using WebAudio (soft)
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function clickSound() {
+      try {
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.type = 'square';
+        o.frequency.value = 900 + Math.random()*400;
+        g.gain.value = 0.0035;
+        o.connect(g);
+        g.connect(audioCtx.destination);
+        o.start();
+        setTimeout(()=> { o.stop(); }, 40);
+      } catch(e) { /* ignore on safari if blocked */ }
+    }
+
+    function step() {
+      if (i <= text.length - 1) {
+        el.textContent += text.charAt(i);
+        // occasional soft click for visible letters (not every char to be subtle)
+        if (Math.random() > 0.6) clickSound();
+        i++;
+        setTimeout(step, speed);
+      } else {
+        resolve();
+      }
+    }
+    step();
+  });
+}
+
+/* small sleep */
+function sleep(ms) { return new Promise(res => setTimeout(res, ms)); }
+
+/* =========================
+   HEARTS — floating hearts
+   ========================= */
+function spawnHearts(count = 16) {
+  const W = innerWidth, H = innerHeight;
+  for (let i = 0; i < count; i++) {
+    const h = document.createElement('div');
+    h.className = 'heart';
+    const size = 10 + Math.random()*20;
+    h.style.width = h.style.height = size + 'px';
+    h.style.left = (Math.random()*100) + 'vw';
+    h.style.bottom = (-20 - Math.random()*80) + 'px';
+    h.style.opacity = (0.6 + Math.random()*0.4);
+    h.style.transition = `transform ${6 + Math.random()*6}s linear, opacity ${6 + Math.random()*6}s linear`;
+    // random gradient for variety
+    h.style.background = Math.random()>.5 ? 'linear-gradient(180deg,#f72585,#ff4d6d)' : 'linear-gradient(180deg,#ff758f,#ff4d6d)';
+    heartsLayer.appendChild(h);
+    // animate
+    setTimeout(()=> {
+      h.style.transform = `translateY(-${H + 160}px) rotate(45deg) scale(${1 + Math.random()*0.5})`;
+      h.style.opacity = '0';
+    }, 50 + Math.random()*500);
+    // remove later
+    setTimeout(()=> h.remove(), (8 + Math.random()*6)*1000);
+  }
+}
+
+/* =========================
+   CONFETTI burst
+   ========================= */
+function launchConfettiBurst(n = 40) {
+  const colors = ['#f72585','#ff4d6d','#ff9a9e','#ffd6e0','#fad0c4'];
+  for (let i = 0; i < n; i++) {
+    const c = document.createElement('div');
+    c.style.position = 'absolute';
+    c.style.width = (6 + Math.random()*12)+'px';
+    c.style.height = (8 + Math.random()*14)+'px';
+    c.style.left = (40 + Math.random()*20)+'vw';
+    c.style.top = '20vh';
+    c.style.background = colors[Math.floor(Math.random()*colors.length)];
+    c.style.opacity = 0.95;
+    c.style.borderRadius = (Math.random()>.6) ? '2px' : '50%';
+    confettiLayer.appendChild(c);
+    // animate
+    const dx = (Math.random()*260 - 130);
+    const dy = (Math.random()*260 + 180);
+    const rot = (Math.random()*720 - 360);
+    c.animate([
+      { transform: 'translate(0,0) rotate(0deg)', opacity:1 },
+      { transform: `translate(${dx}px, ${dy}px) rotate(${rot}deg)`, opacity:0.12 }
+    ], { duration: 1000 + Math.random()*1400, easing: 'cubic-bezier(.2,.9,.25,1)'});
+    setTimeout(()=> c.remove(), 2200 + Math.random()*1200);
+  }
+}
+
+/* =========================
+   OPEN LETTER (modal) — with typewriter text
+   ========================= */
+openLetterBtn.addEventListener('click', () => {
+  modalWrap.style.display = 'grid';
+  modalWrap.setAttribute('aria-hidden', 'false');
+  modalTyping.textContent = '';
+  // type modal text
+  typeText(CONFIG.letterParagraph, modalTyping, 20);
+});
+closeModal.addEventListener('click', () => {
+  modalWrap.style.display = 'none';
+  modalWrap.setAttribute('aria-hidden', 'true');
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { modalWrap.style.display = 'none'; modalWrap.setAttribute('aria-hidden', 'true'); } });
+
+/* =========================
+   SAVE IMAGE using html2canvas
+   ========================= */
+saveBtn.addEventListener('click', async () => {
+  // disable button to avoid double
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'Đang tạo ảnh...';
+  try {
+    // render the card element
+    await sleep(80); // allow render paint
+    const cardEl = document.getElementById('card');
+    const canvas = await html2canvas(cardEl, { useCORS: true, scale: 2, backgroundColor: null });
+    const url = canvas.toDataURL('image/png');
+    const a = document.createElement('a');
+    a.href = url; a.download = 'thiep-sinh-nhat.png'; a.click();
+  } catch (err) {
+    alert('Không thể tạo ảnh ở trình duyệt này. Vui lòng chụp màn hình như phương án thay thế.');
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Lưu ảnh thiệp';
+  }
+});
+
+/* =========================
+   MUSIC toggle
+   ========================= */
+toggleMusic.addEventListener('click', async () => {
+  if (bgm.paused) {
+    try { await bgm.play(); toggleMusic.textContent = 'Tạm dừng ♫'; } catch(e) { alert('Trình duyệt chặn phát nhạc — hãy tương tác trang trước.'); }
+  } else {
+    bgm.pause(); toggleMusic.textContent = 'Phát nhạc ♪';
+  }
+});
+
+/* allow envelope to be opened once by keyboard clicks, also hint */
+envelope.addEventListener('mouseenter', () => envelopeWrap.style.transform = 'translateY(-6px) scale(1.02)');
+envelope.addEventListener('mouseleave', () => envelopeWrap.style.transform = '');
+envelope.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') openEnvelopeSequence(); });
+
+/* =========================
+   OPTIONAL: pre-warm audio context on first user interaction
+   ========================= */
+function unlockAudio() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    gain.gain.value = 0;
+    osc.start(0);
+    setTimeout(()=> { osc.stop(0); }, 50);
+    document.removeEventListener('click', unlockAudio);
+  } catch(e) {}
+}
+document.addEventListener('click', unlockAudio, { once: true });
+
+/* =========================
+   Accessibility: focus outline for envelope
+   ========================= */
+envelope.addEventListener('focus', () => envelopeWrap.style.boxShadow = '0 8px 30px rgba(0,0,0,0.12)');
+envelope.addEventListener('blur', () => envelopeWrap.style.boxShadow = 'none');
+
+/* That's it. Enjoy! */
+</script>
+
+</body>
+</html>

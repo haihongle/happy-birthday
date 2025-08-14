@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hành Trình Trái Tim – Birthday Journey 💖</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --pink:#f72585; --pink2:#ff4d6d; --gold:#ffd166; --ink:#2b2b2b;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; font-family:'Poppins',system-ui,sans-serif; color:var(--ink);
+  background: linear-gradient(-45deg,#ff9a9e,#fad0c4,#fbc2eb,#a6c0fe);
+  background-size:400% 400%; animation:bgShift 22s linear infinite; overflow:hidden;
+}
+@keyframes bgShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+
+/* Launch screen (gift) */
+#launch{ position:fixed; inset:0; display:grid; place-items:center; z-index:20; backdrop-filter:saturate(120%) blur(0px)}
+.gift{ position:relative; width:200px; height:200px; cursor:pointer; filter:drop-shadow(0 16px 30px rgba(0,0,0,.25)); }
+.box{ position:absolute; inset:24px 0 0; width:200px; height:176px; background:var(--pink2); border-radius:18px; box-shadow:inset 0 0 0 10px rgba(255,255,255,.2) }
+.ribbon-v,.ribbon-h{ position:absolute; background:var(--gold) }
+.ribbon-v{ width:24px; height:100%; left:50%; transform:translateX(-50%) }
+.ribbon-h{ height:24px; width:100%; top:38% }
+.lid{ position:absolute; width:220px; height:64px; left:50%; transform:translateX(-50%); top:-10px; background:var(--pink2); border-radius:20px; box-shadow:inset 0 0 0 10px rgba(255,255,255,.22); transform-origin:50% 100%; animation:wiggle 2.2s ease-in-out infinite }
+@keyframes wiggle{0%,100%{transform:translateX(-50%) rotate(0)}25%{transform:translateX(-50%) rotate(2.2deg)}75%{transform:translateX(-50%) rotate(-2.2deg)}}
+.bow{ position:absolute; left:50%; top:-8px; transform:translateX(-50%); display:flex; gap:6px }
+.bow span{ width:30px; height:30px; background:var(--gold); border-radius:50% 50% 0 50%; transform:rotate(45deg) }
+.hint{ position:absolute; bottom:24px; left:50%; transform:translateX(-50%); background:rgba(255,255,255,.75); padding:8px 14px; border-radius:999px; font-size:12px }
+.light{ position:absolute; inset:-80px; background: conic-gradient(from 0deg at 50% 30%, rgba(255,255,255,.8), rgba(255,255,255,0) 60%); border-radius:24px; filter:blur(12px); opacity:0; transition:opacity .4s ease; z-index:-1 }
+#launch.open .lid{ animation:none; transform:translateX(-50%) rotateX(62deg) translateY(-8px) }
+#launch.open .light{ opacity:1 }
+
+/* Stage */
+#stage{ position:fixed; inset:0; z-index:1 }
+.bg{ position:absolute; inset:0; background-size:cover; background-position:center; opacity:0; transition:opacity 1.4s ease, transform 10s ease; transform:scale(1.08) }
+.bg.show{ opacity:1; transform:scale(1) }
+.overlay{ position:absolute; inset:0; display:grid; place-items:center; padding:20px; z-index:2; pointer-events:none }
+.card{ width:min(920px,94vw); background:rgba(255,255,255,.2); border:1px solid rgba(255,255,255,.5); backdrop-filter: blur(10px) saturate(120%); border-radius:22px; padding:26px 24px; box-shadow:0 16px 44px rgba(0,0,0,.22) }
+.card h2{ margin:0 0 10px; font-family:'Great Vibes',cursive; font-size:42px; color:var(--pink) }
+#line{ min-height:96px; font-size:20px; line-height:1.9; white-space:pre-wrap }
+.type{ border-right:2px solid var(--pink); animation:caret 1s steps(1) infinite }
+@keyframes caret{50%{border-color:transparent}}
+
+/* Roses & hearts */
+#roses,#hearts{ position:fixed; inset:0; pointer-events:none; z-index:3 }
+.rose{ position:absolute; top:-50px; font-size:22px; filter:drop-shadow(0 6px 10px rgba(0,0,0,.2)); animation:fall linear forwards }
+@keyframes fall{ to{ transform:translateY(110vh) rotate(120deg); opacity:0 } }
+.heart{ position:absolute; bottom:-40px; width:16px; height:16px; background:var(--pink); transform:rotate(45deg); animation:floatUp linear infinite; opacity:.85 }
+.heart::before,.heart::after{ content:""; position:absolute; width:16px; height:16px; background:var(--pink); border-radius:50% }
+.heart::before{ left:-8px } .heart::after{ top:-8px }
+@keyframes floatUp{0%{transform:translateY(0) rotate(45deg) scale(.9); opacity:0}10%{opacity:.9}100%{transform:translateY(-110vh) rotate(45deg) scale(1.15); opacity:0}}
+
+/* Finale */
+#finale{ position:fixed; inset:0; display:none; place-items:center; z-index:5 }
+#finale.show{ display:grid; animation:fadeIn .6s ease forwards }
+.big-heart{ width:160px; height:160px; background:var(--pink); transform:rotate(45deg); position:relative; animation:beat 1.1s ease-in-out infinite }
+.big-heart::before,.big-heart::after{ content:""; position:absolute; width:160px; height:160px; background:var(--pink); border-radius:50% }
+.big-heart::before{ left:-80px } .big-heart::after{ top:-80px }
+@keyframes beat{0%{transform:rotate(45deg) scale(1)}20%{transform:rotate(45deg) scale(1.12)}40%{transform:rotate(45deg) scale(1)}60%{transform:rotate(45deg) scale(1.08)}100%{transform:rotate(45deg) scale(1)}}
+.sig{ margin-top:22px; font-family:'Great Vibes',cursive; font-size:40px; color:#fff; text-shadow:0 4px 18px rgba(0,0,0,.35); overflow:hidden; white-space:nowrap; border-right:2px solid rgba(255,255,255,.8); animation:typing 3.2s steps(28,end) forwards, caret 1s steps(1) infinite }
+@keyframes typing{from{width:0}to{width:100%}}
+
+/* Small screens */
+@media (max-width:560px){
+  .card{ padding:20px 16px }
+  #line{ font-size:18px }
+  .big-heart,.big-heart::before,.big-heart::after{ width:120px; height:120px }
+}
+</style>
+</head>
+<body>
+
+<!-- Launch with gift -->
+<section id="launch">
+  <div class="gift" id="gift" title="Chạm để bắt đầu hành trình 🎁">
+    <div class="light"></div>
+    <div class="lid"></div>
+    <div class="bow"><span></span><span></span><span></span></div>
+    <div class="box">
+      <div class="ribbon-v"></div>
+      <div class="ribbon-h"></div>
+    </div>
+  </div>
+  <div class="hint">Chạm vào hộp quà để bắt đầu ✨</div>
+</section>
+
+<!-- Stage backgrounds and overlay text -->
+<section id="stage">
+  <div class="bg" id="bgA"></div>
+  <div class="bg" id="bgB"></div>
+  <div class="overlay">
+    <div class="card">
+      <h2>Hành trình trái tim</h2>
+      <div id="line"></div>
+    </div>
+  </div>
+</section>
+
+<!-- Ambient particles -->
+<div id="roses"></div>
+<div id="hearts"></div>
+
+<!-- Finale -->
+<section id="finale">
+  <div>
+    <div class="big-heart"></div>
+    <div class="sig">— Lê Hồng Hải 🌸</div>
+  </div>
+</section>
+
+<audio id="bgm" src="birthday.mp3" preload="auto"></audio>
+
+<script>
+// ===== Content & scenes (royalty-free images via Unsplash) =====
+const scenes = [
+  { // 1 – biển xanh
+    img: 'image/haihoa.jpg',
+    text: 'Biển xanh kể cho anh nghe về những ước mơ của em — dịu dàng mà sâu thẳm.'
+  },
+  { // 2 – vườn hoa
+    img: 'image/haihoa.jpg',
+    text: 'Giữa vườn hoa rực rỡ, anh chỉ nhìn thấy một bông duy nhất làm trái tim mình nở rộ — là em.'
+  },
+  { // 3 – bầu trời mây
+    img: 'image/haihoa.jpg',
+    text: 'Mây cứ trôi, còn anh chọn ở lại — bên nụ cười ấm áp nhất trên đời.'
+  },
+  { // 4 – ánh nến
+    img: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1920&auto=format&fit=crop',
+    text: 'Trong ngọn nến nhỏ, anh thấy bình yên đủ lớn để ôm trọn cả thế giới có em.'
+  },
+  { // 5 – lời kết
+    img: 'image/haihoa.jpg',
+    text: 'Chúc em một sinh nhật nhiệm màu — nơi mọi điều ước đều mỉm cười, như cách em làm tim anh mỉm cười mỗi ngày.'
+  }
+];
+
+// Slow, romantic typing speed
+const TYPE_SPEED = 60; // ms per char (chậm tình cảm)
+
+// ===== Elements =====
+const launch = document.getElementById('launch');
+const gift = document.getElementById('gift');
+const bgA = document.getElementById('bgA');
+const bgB = document.getElementById('bgB');
+const lineEl = document.getElementById('line');
+const roses = document.getElementById('roses');
+const hearts = document.getElementById('hearts');
+const finale = document.getElementById('finale');
+const bgm = document.getElementById('bgm');
+let useA = true; // toggle backgrounds
+
+// ===== Start Journey =====
+gift.addEventListener('click', async ()=>{
+  launch.classList.add('open');
+  try{ await bgm.play(); }catch(e){}
+  setTimeout(()=>{ launch.remove(); startJourney(); }, 650);
+});
+
+async function startJourney(){
+  spawnHearts(10); // ambient hearts right away
+  for(let i=0;i<scenes.length;i++){
+    await showScene(scenes[i]);
+    spawnRoses(12); // roses each scene
+  }
+  // Finale heart
+  finale.classList.add('show');
+}
+
+function showScene(scene){
+  return new Promise(async (resolve)=>{
+    const inView = useA ? bgA : bgB; const outView = useA ? bgB : bgA; useA = !useA;
+    inView.style.backgroundImage = `url('${scene.img}')`;
+    inView.classList.add('show'); outView.classList.remove('show');
+    await typeLine(scene.text, lineEl, TYPE_SPEED);
+    await sleep(1200); // pause before next scene
+    lineEl.textContent = '';
+    resolve();
+  });
+}
+
+function typeLine(text, el, speed){
+  return new Promise(resolve=>{
+    el.textContent = ''; el.classList.add('type');
+    let i=0; const timer = setInterval(()=>{
+      el.textContent += text.charAt(i);
+      i++;
+      if(i>=text.length){ clearInterval(timer); el.classList.remove('type'); resolve(); }
+    }, speed);
+  });
+}
+const sleep = ms=> new Promise(r=>setTimeout(r,ms));
+
+// ===== Roses & Hearts =====
+function spawnRoses(n){
+  for(let i=0;i<n;i++){
+    const r = document.createElement('div'); r.className='rose'; r.textContent='🌹';
+    r.style.left = Math.random()*100+'vw';
+    r.style.animationDuration = 6+Math.random()*7+'s';
+    r.style.fontSize = 18+Math.random()*16+'px';
+    roses.appendChild(r); setTimeout(()=> r.remove(), 15000);
+  }
+}
+function spawnHearts(n){
+  for(let i=0;i<n;i++){
+    const h = document.createElement('div'); h.className='heart';
+    h.style.left = Math.random()*100+'vw';
+    h.style.animationDuration = 8+Math.random()*8+'s';
+    h.style.animationDelay = Math.random()*4+'s';
+    hearts.appendChild(h); setTimeout(()=> h.remove(), 16000);
+  }
+}
+
+// Preload first background for a smooth start
+bgA.style.backgroundImage = `url('${scenes[0].img}')`; bgA.classList.add('show');
+</script>
+</body>
+</html>

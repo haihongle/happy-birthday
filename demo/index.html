@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Happy Birthday, My Love 🎂💖</title>
+  <meta name="description" content="Thiệp sinh nhật lãng mạn tặng người yêu – chỉ cần mở là thấy trái tim bay và lời chúc ngọt ngào." />
+
+  <!-- Google Fonts (tùy chọn) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg1: #ff9a9e;
+      --bg2: #fad0c4;
+      --bg3: #fad0c4;
+      --card: rgba(255,255,255,0.2);
+      --card-border: rgba(255,255,255,0.45);
+      --text: #2b2b2b;
+      --accent: #ff4d6d;
+      --accent-2: #f72585;
+      --glow: 0 10px 30px rgba(247,37,133,0.25);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      font-family: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color: var(--text);
+      /* Nền gradient động */
+      background: linear-gradient(-45deg, var(--bg1), var(--bg2), #fbc2eb, #a6c0fe);
+      background-size: 400% 400%;
+      animation: gradientShift 18s ease infinite;
+      overflow-x: hidden;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Trái tim bay */
+    .hearts {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 1;
+    }
+    .hearts span {
+      position: absolute;
+      bottom: -50px;
+      width: 18px; height: 18px;
+      background: var(--accent);
+      transform: rotate(45deg);
+      animation: floatUp linear infinite;
+      opacity: .75;
+      filter: drop-shadow(0 6px 10px rgba(0,0,0,.15));
+    }
+    .hearts span::before,
+    .hearts span::after {
+      content: "";
+      position: absolute;
+      width: 18px; height: 18px;
+      background: var(--accent);
+      border-radius: 50%;
+    }
+    .hearts span::before { left: -9px; }
+    .hearts span::after  { top: -9px; }
+
+    @keyframes floatUp {
+      0%   { transform: translateY(0) rotate(45deg) scale(.9); opacity:.0; }
+      10%  { opacity:.85; }
+      100% { transform: translateY(-110vh) rotate(45deg) scale(1.15); opacity:0; }
+    }
+
+    /* Khung thiệp */
+    .wrap {
+      position: relative;
+      min-height: 100dvh;
+      display: grid;
+      place-items: center;
+      padding: 32px 20px 56px;
+      z-index: 2;
+    }
+
+    .card {
+      width: min(880px, 92vw);
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(12px) saturate(130%);
+      -webkit-backdrop-filter: blur(12px) saturate(130%);
+      border-radius: 24px;
+      box-shadow: var(--glow);
+      overflow: hidden;
+    }
+
+    .header {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 18px;
+      align-items: center;
+      padding: 28px 28px 16px;
+    }
+
+    .avatar {
+      width: 160px; height: 160px;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 2px solid rgba(255,255,255,0.7);
+      box-shadow: 0 10px 30px rgba(0,0,0,.1);
+      transform: rotate(-2deg);
+      background: #fff center/cover no-repeat;
+    }
+
+    .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    .title h1 {
+      margin: 0 0 6px;
+      font-family: 'Great Vibes', cursive;
+      font-size: clamp(32px, 6vw, 60px);
+      color: var(--accent-2);
+      letter-spacing: .5px;
+      text-shadow: 0 2px 14px rgba(247,37,133,.25);
+    }
+
+    .title p { margin: 0; font-weight: 300; font-size: clamp(14px, 2.2vw, 18px); }
+
+    .ribbon {
+      --r: 18px;
+      position: relative;
+      padding: 10px 18px;
+      background: linear-gradient(90deg, #ff758f, #fca5a5);
+      color: #fff;
+      border-radius: 0 10px 10px 0;
+      display: inline-block;
+      font-weight: 600;
+      box-shadow: 0 8px 20px rgba(255,117,143,.35);
+      margin: 10px 0;
+    }
+    .ribbon:before {
+      content: "";
+      position: absolute;
+      left: -18px; top:0; bottom:0;
+      width: 0; border-top: 18px solid transparent; border-bottom: 18px solid transparent; border-right: 18px solid #ff758f;
+    }
+
+    .content { padding: 0 28px 24px; }
+
+    .message {
+      background: rgba(255,255,255,.65);
+      border: 1px dashed rgba(255,77,109,.45);
+      border-radius: 16px;
+      padding: 18px;
+      line-height: 1.8;
+      font-size: 16px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .btn {
+      appearance: none; border: none; cursor: pointer;
+      padding: 12px 18px; border-radius: 999px;
+      background: #fff; color: var(--accent-2);
+      font-weight: 600; letter-spacing: .2px;
+      box-shadow: 0 8px 20px rgba(0,0,0,.08);
+      transition: transform .15s ease, box-shadow .2s ease;
+    }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(0,0,0,.12); }
+
+    .btn.primary { background: linear-gradient(90deg, #f72585, #ff4d6d, #ff758f); color: #fff; }
+
+    .footer {
+      text-align: center; padding: 18px 24px 28px; opacity: .8; font-size: 13px;
+    }
+
+    /* Modal thư tay */
+    .backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,.35);
+      display: none; place-items: center; z-index: 10;
+      padding: 24px;
+    }
+    .backdrop.show { display: grid; animation: fadeIn .2s ease; }
+    @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+
+    .modal {
+      width: min(720px, 94vw);
+      background: #fff; border-radius: 20px; padding: 22px 22px 18px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.2);
+      max-height: 82dvh; overflow: auto;
+    }
+    .modal h3 { margin: 6px 0 10px; font-size: 22px; color: var(--accent-2); }
+    .modal p { line-height: 1.9; margin: 0 0 12px; }
+
+    .close-x { position: sticky; top: -6px; float: right; font-weight: 700; cursor: pointer; background: none; border: none; font-size: 22px; }
+
+    /* Audio player nhỏ xinh */
+    .player {
+      display: inline-flex; align-items: center; gap: 10px; padding: 10px 14px;
+      background: rgba(255,255,255,.8); border-radius: 999px; border: 1px solid rgba(0,0,0,.06);
+    }
+
+    .hint { font-size: 12px; opacity: .75; margin-top: 8px; }
+
+    @media (max-width: 640px){
+      .header { grid-template-columns: 100px 1fr; }
+      .avatar { width: 100px; height: 100px; border-radius: 14px; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Trái tim bay ngẫu nhiên -->
+  <div class="hearts" aria-hidden="true"></div>
+
+  <main class="wrap">
+    <article class="card" role="article" aria-label="Thiệp sinh nhật lãng mạn">
+      <header class="header">
+        <div class="avatar" style="background-image:url('image/vaytrang.jpg');">
+          <!-- Đổi ảnh ở style="background-image:url('...')" để dùng ảnh của người ấy -->
+        </div>
+        <div class="title">
+          <span class="ribbon">Happy Birthday Thanh Hoa</span>
+          <h1>Gửi Hoa yêu dấu 💗</h1>
+          <p>Hôm nay là ngày đặc biệt của em, và cũng là ngày anh thấy mình may mắn hơn cả – vì được yêu em!</p>
+          <div class="actions">
+            <button class="btn primary" id="openLetter">Mở thư tay ✨</button>
+            <label class="player">
+              <button class="btn" id="toggleMusic" type="button">Phát nhạc ♪</button>
+              
+              <audio id="bgm" src="./happy-birthday.mp3"></audio>
+            </label>
+          </div>
+          <!-- <p class="hint">Mẹo: Thay tiêu đề, lời chúc và ảnh cho hợp với tên người yêu nhé!</p> -->
+        </div>
+      </header>
+
+      <section class="content">
+        <div class="message">
+          <p><strong>Chúc mừng sinh nhật!</strong> Chúc em luôn mạnh khỏe, tự tin và rạng rỡ trên mọi hành trình. Cảm ơn em đã đồng hành và mang đến cho anh những điều tốt đẹp nhất.</p>
+          <p>Hy vọng tuổi mới sẽ mở ra nhiều cơ hội, niềm vui và trải nghiệm đáng nhớ. Anh luôn trân trọng từng khoảnh khắc được ở bên em.</p>
+        </div>
+
+        <div class="actions">
+          <a class="btn" download href="#" id="saveImage">Lưu ảnh thiệp</a>
+          <button class="btn" id="shareBtn" type="button">Chia sẻ thiệp</button>
+        </div>
+      </section>
+
+      <footer class="footer">Made with ❤️ by <span id="sender">Anh yêu (Lê Hồng Hải)</span> • <span id="today"></span></footer>
+    </article>
+  </main>
+
+  <!-- Modal Thư tay -->
+  <div class="backdrop" id="backdrop" role="dialog" aria-modal="true" aria-label="Lá thư tay cho em">
+    <div class="modal">
+      <button class="close-x" id="closeLetter" aria-label="Đóng">×</button>
+      <h3>Gửi em của anh,</h3>
+      <p id="letter">
+        Cảm ơn vì em đã đến, anh càng trân trọng sự hiện diện của em trong cuộc đời mình.  
+        Em không chỉ mang lại niềm vui, mà còn là nguồn động lực để anh trở nên tốt hơn.  
+        Chúc em tuổi mới thật nhiều sức khỏe, nhiều tiếng cười và sự bình yên trong tâm hồn.  
+        Anh sẽ luôn ở đây, đồng hành và sẻ chia cùng em trên mọi chặng đường phía trước.
+      </p>
+
+    </div>
+  </div>
+
+  <script>
+    // Tạo trái tim bay ngẫu nhiên
+    const hearts = document.querySelector('.hearts');
+    const HEART_COUNT = 28;
+    for (let i = 0; i < HEART_COUNT; i++) {
+      const s = document.createElement('span');
+      const left = Math.random() * 100; // %
+      const delay = Math.random() * 8;  // s
+      const duration = 8 + Math.random() * 8; // s
+      const size = 12 + Math.random() * 16; // px
+      s.style.left = left + 'vw';
+      s.style.animationDelay = delay + 's';
+      s.style.animationDuration = duration + 's';
+      s.style.width = s.style.height = size + 'px';
+      s.style.setProperty('--accent', Math.random() > .5 ? '#f72585' : '#ff4d6d');
+      hearts.appendChild(s);
+    }
+
+    // Gán ngày hôm nay
+    const todayEl = document.getElementById('today');
+    const today = new Date();
+    const fmt = new Intl.DateTimeFormat('vi-VN', { dateStyle: 'long' }).format(today);
+    todayEl.textContent = fmt;
+
+    // Modal thư tay
+    const openBtn = document.getElementById('openLetter');
+    const closeBtn = document.getElementById('closeLetter');
+    const backdrop = document.getElementById('backdrop');
+    const letter = document.getElementById('letter');
+
+    function typeWriter(el){
+      const full = el.textContent.trim();
+      el.textContent = '';
+      let i = 0;
+      const timer = setInterval(()=>{
+        el.textContent += full.charAt(i);
+        i++;
+        if(i >= full.length) clearInterval(timer);
+      }, 18);
+    }
+
+    openBtn.addEventListener('click', ()=>{
+      backdrop.classList.add('show');
+      typeWriter(letter);
+    });
+    closeBtn.addEventListener('click', ()=> backdrop.classList.remove('show'));
+    backdrop.addEventListener('click', (e)=>{ if(e.target === backdrop) backdrop.classList.remove('show'); });
+
+    // Nhạc nền
+    const bgm = document.getElementById('bgm');
+    const toggleMusic = document.getElementById('toggleMusic');
+    toggleMusic.addEventListener('click', async ()=>{
+      try{
+        if (bgm.paused) { await bgm.play(); toggleMusic.textContent = 'Tạm dừng ♫'; }
+        else { bgm.pause(); toggleMusic.textContent = 'Phát nhạc ♪'; }
+      }catch(err){
+        alert('Hãy chạm màn hình để cho phép phát nhạc nhé!');
+      }
+    });
+
+    // Lưu ảnh thiệp (screenshot phần card) – không cần thư viện ngoài
+    // Gợi ý: trên điện thoại, hãy chụp màn hình trực tiếp nếu nút này không hoạt động do giới hạn trình duyệt.
+    document.getElementById('saveImage').addEventListener('click', (e)=>{
+      e.preventDefault();
+      html2canvasFallback();
+    });
+
+    async function html2canvasFallback(){
+      // Tạo ảnh từ SVG foreignObject (cách đơn giản, hỗ trợ tốt trên Chrome)
+      const node = document.querySelector('.card');
+      const xml = new XMLSerializer().serializeToString(node);
+      const svg = `\n        <svg xmlns="http://www.w3.org/2000/svg" width="${node.offsetWidth}" height="${node.offsetHeight}">\n          <foreignObject width="100%" height="100%">\n            ${xml}\n          </foreignObject>\n        </svg>`;
+      const url = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = function(){
+        const canvas = document.createElement('canvas');
+        canvas.width = node.offsetWidth; canvas.height = node.offsetHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        const dataURL = canvas.toDataURL('image/hoa.jpg');
+        const a = document.createElement('a'); a.href = dataURL; a.download = 'thiep-sinh-nhat.png'; a.click();
+      };
+      img.src = url;
+    }
+
+    // Web Share API
+    const shareBtn = document.getElementById('shareBtn');
+    shareBtn.addEventListener('click', async ()=>{
+      const text = 'Thiệp sinh nhật nè 💖';
+      const url = window.location.href;
+      if (navigator.share) {
+        try { await navigator.share({ title: document.title, text, url }); }
+        catch(e){ /* người dùng hủy chia sẻ */ }
+      } else {
+        navigator.clipboard.writeText(url);
+        shareBtn.textContent = 'Đã copy link!';
+        setTimeout(()=> shareBtn.textContent = 'Chia sẻ thiệp', 1800);
+      }
+    });
+  </script>
+</body>
+</html>
